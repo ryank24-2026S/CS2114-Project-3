@@ -93,15 +93,23 @@ public class PokerController {
             text.append("\nNext: ").append(player);
             text.append("\nHand: ").append(model.getHand(player));
             text.append("\nQueue: ").append(model.getPendingTurns());
+            text.append("\nStage: ").append(model.getStage());
+            text.append("\nBoard: ").append(model.getCommunityCards());
+            text.append("\nNext: ").append(player);
+            text.append("\nHole cards: ").append(model.getHand(player));
+            text.append("\nQueue: ").append(model.getPendingTurns());
         }
         else if (model.getState() == PokerModel.State.FINISHED) {
-            for (String player : model.getActivePlayers()) {
-                HandEvaluator.HandValue value = HandEvaluator.evaluate(model
-                    .getHand(player));
+            text.append("\nBoard: ").append(model.getCommunityCards());
 
+            for (String player : model.getActivePlayers()) {
                 text.append("\n").append(player).append(": ");
                 text.append(model.getHand(player));
-                text.append(" (").append(value.getLabel()).append(")");
+
+                if (model.getCommunityCards().size() == 5) {
+                    HandEvaluator.HandValue value = model.getHandValue(player);
+                    text.append(" (").append(value.getLabel()).append(")");
+                }
             }
 
             text.append("\nWinner(s): ").append(model.getWinners());
@@ -113,25 +121,27 @@ public class PokerController {
 
     public static String getHelp() {
         return "Command: join NAME | start | check | fold "
-            + "| status | help | quit\n"
-            + "Prototype: 2-6 players, five cards each, "
-            + "one check/fold turn each; no betting or drawing.";
+            + "| status | help | quit\n" + "Hold'em style: 2-6 players,  "
+            + "two whole cards each, shared flop/turn/river,"
+            + "check/fold only.";
     }
-    
-    //---------------------------------
-    public static class Reply{
+
+    // ---------------------------------
+    public static class Reply {
         private final String text;
         private boolean quit;
-        
+
         public Reply(String text, boolean quit) {
             this.text = text;
             this.quit = quit;
         }
-        
+
+
         public String getText() {
             return text;
         }
-        
+
+
         public boolean shouldQuit() {
             return quit;
         }

@@ -13,10 +13,17 @@ public class PokerModel {
     public enum State {
         LOBBY, PLAYING, FINISHED
     }
+    
+    public enum Stage{
+        PREFLOP,
+        FLOP,
+        TURN,
+        RIVER
+    }
 
     private static final int MIN_PLAYERS = 2;
     private static final int MAX_PLAYERS = 6;
-    private static final int CARDS_PER_HAND = 5;
+    private static final int CARDS_PER_HAND = 2;
 
     private List<String> players;
     private Map<String, List<Card>> hands;
@@ -25,6 +32,9 @@ public class PokerModel {
     private Random random;
     private State state;
     private List<String> winners;
+    private Deck deck;
+    private List<Card> communityCards;
+    private Stage stage;
 
     public PokerModel(Random random) {
         if (random == null) {
@@ -38,6 +48,7 @@ public class PokerModel {
         turns = new TurnQueue();
         state = State.LOBBY;
         winners = new ArrayList<>();
+        communityCards = new ArrayList<>();
     }
 
 
@@ -50,7 +61,7 @@ public class PokerModel {
 
         String cleanName = name.trim();
 
-        if (cleanName.length() > 20 || !cleanName.matches("[A-Z]a-z0-9 _-]")) {
+        if (cleanName.length() > 20 || !cleanName.matches("[A-Za-z0-9 _-]+")) {
             throw new IllegalArgumentException(
                 "Names must use 1-20 letters, digits, spaces, "
                     + "underscores, or hyphens.");
@@ -80,7 +91,7 @@ public class PokerModel {
                 "Add at least two players before starting.");
         }
 
-        Deck deck = new Deck(random);
+        deck = new Deck(random);
 
         for (String player : players) {
             hands.put(player, new ArrayList<>());
@@ -94,6 +105,7 @@ public class PokerModel {
             }
         }
 
+        stage = Stage.PREFLOP;
         state = State.PLAYING;
     }
 
@@ -142,16 +154,29 @@ public class PokerModel {
             findShowdownWinners();
             state = State.FINISHED;
         }
+        else {
+            advanceStage();
+            createStageTurns();
+        }
     }
 
+    
+    public HandEvaluator.HandValue getHandValue(String player){
+        if(communityCards.size() != 5) {
+            throw new IllegalStateException("Five community cards are required to evaluate a hand.");
+        }
+        
+        List<Card> availableCards = new ArrayList<>(getHand(player));
+        availableCards.addAll(communityCards);
+        return HandEvaluator.evaluateBest(availableCards);
+    }
 
     private void findShowdownWinners() {
         HandEvaluator.HandValue bestHand = null;
         List<String> roundWinners = new ArrayList<>();
 
         for (String player : activePlayers) {
-            HandEvaluator.HandValue handValue = HandEvaluator.evaluate(hands
-                .get(player));
+            HandEvaluator.HandValue handValue = getHandValue(player);
 
             if (bestHand == null || handValue.compareTo(bestHand) > 0) {
                 bestHand = handValue;
@@ -212,5 +237,44 @@ public class PokerModel {
 
     public List<String> getWinners() {
         return Collections.unmodifiableList(new ArrayList<>(winners));
+    }
+    
+    public List<Card> getCommunityCards(){
+        return Collections.unmodifiableList(new ArrayList<>(communityCards));
+    }
+    
+    public Stage getStage() {
+        return stage;
+    }
+    
+    private void advanceStage() {
+        deck.deal();
+        
+        switch(stage){
+            case PREFLOP:
+                communityCards.add(deck.deal());
+                communityCards.add(deck.deal());
+                communityCards.add(deck.deal());
+                stage = Stage.FLOP;
+                break;
+            case FLOP:
+                communityCards.add(deck.deal());
+                stage=Stage.TURN;
+                break;
+            case TURN:
+                communityCards.add(deck.deal());
+                stage=Stage.RIVER;
+                break;
+            default:
+                throw new IllegalStateException("There are no more community cards to deal.");
+        }
+    }
+    
+    private void createStageTurns() {
+        turns = new TurnQueue();
+        
+        for(String player : activePlayers) {
+            turns.enqueue(player);
+        }
     }
 }

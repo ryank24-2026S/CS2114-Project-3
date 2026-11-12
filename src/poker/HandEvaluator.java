@@ -210,4 +210,48 @@ public class HandEvaluator {
             return Integer.compare(tieBreak.size(), other.tieBreak.size());
         }
     }
+
+    public static HandValue evaluateBest(List<Card> cards) {
+        if (cards == null || cards.size() != 7) {
+            throw new IllegalArgumentException(
+                "Exactly seven cards are required.");
+        }
+
+        Set<Card> checked = new HashSet<>();
+
+        for (Card card : cards) {
+            if (card == null || !checked.add(card)) {
+                throw new IllegalArgumentException(
+                    "Cards must be distinct and non-null.");
+            }
+        }
+
+        HandValue best = null;
+
+        for (int a = 0; a < 3; a++) {
+            for (int b = a + 1; b < 4; b++) {
+                for (int c = b + 1; c < 5; c++) {
+                    for (int d = c + 1; d < 6; d++) {
+                        for (int e = d + 1; e < 7; e++) {
+                            List<Card> candidate = new ArrayList<>();
+
+                            candidate.add(cards.get(a));
+                            candidate.add(cards.get(b));
+                            candidate.add(cards.get(c));
+                            candidate.add(cards.get(d));
+                            candidate.add(cards.get(e));
+
+                            HandValue value = evaluate(candidate);
+
+                            if (best == null || value.compareTo(best) > 0) {
+                                best = value;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return best;
+    }
 }
