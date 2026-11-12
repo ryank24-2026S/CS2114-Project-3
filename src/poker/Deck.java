@@ -1,43 +1,57 @@
 package poker;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 import java.util.Random;
+import java.util.NoSuchElementException;
 
 public class Deck {
-    private Queue<Card> cards;
+
+    private final Random random;
+    private final List<Card> cards;
+    private int currentIndex;
 
     public Deck(Random random) {
         if (random == null) {
-            throw new IllegalArgumentException("Random source cannot be null.");
+            throw new IllegalArgumentException(
+                "Random source cannot be null.");
         }
 
-        List<Card> shuffled = new ArrayList<>();
+        this.random = random;
+        this.cards = new ArrayList<>();
+
+        resetAndShuffle();
+    }
+
+    public void resetAndShuffle() {
+        cards.clear();
 
         for (Card.Suit suit : Card.Suit.values()) {
             for (int rank = 2; rank <= 14; rank++) {
-                shuffled.add(new Card(rank, suit));
+                cards.add(new Card(rank, suit));
             }
         }
 
-        Collections.shuffle(shuffled, random);
-        cards = new ArrayDeque<>(shuffled);
-    }
+        Collections.shuffle(cards, random);
 
+        currentIndex = 0;
+    }
 
     public Card deal() {
-        if (cards.isEmpty()) {
-            throw new IllegalArgumentException("The deck is empty.");
+        if (currentIndex >= cards.size()) {
+            throw new NoSuchElementException(
+                "The deck is empty.");
         }
 
-        return cards.remove();
+        Card card = cards.get(currentIndex);
+
+        currentIndex++;
+
+        return card;
     }
 
-
-    public int getRemaining() {
-        return cards.size();
+    public int remaining() {
+        return cards.size() - currentIndex;
     }
 }
