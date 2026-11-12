@@ -21,10 +21,14 @@ public class Deck {
         this.random = random;
         this.cards = new ArrayList<>();
 
-        resetAndShuffle();
+        shuffleNewDeck();
     }
 
     public void resetAndShuffle() {
+        shuffleNewDeck();
+    }
+
+    private void shuffleNewDeck() {
         cards.clear();
 
         for (Card.Suit suit : Card.Suit.values()) {
@@ -45,7 +49,6 @@ public class Deck {
         }
 
         Card card = cards.get(currentIndex);
-
         currentIndex++;
 
         return card;

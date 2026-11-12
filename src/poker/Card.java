@@ -20,17 +20,15 @@ public class Card {
         this.suit = suit;
     }
 
-
     public int getRank() {
         return rank;
     }
-
 
     public Suit getSuit() {
         return suit;
     }
 
-
+    @Override
     public String toString() {
         String label;
 
@@ -64,7 +62,7 @@ public class Card {
             return false;
         }
 
-        Card card = (Card)other;
+        Card card = (Card) other;
         return rank == card.rank && suit == card.suit;
     }
 

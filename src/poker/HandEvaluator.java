@@ -5,20 +5,20 @@ import java.util.Collections;
 import java.util.List;
 
 public class HandEvaluator {
+
     private HandEvaluator() {
     }
 
-
     private static void validateCards(List<Card> cards, int expectedSize) {
-
         if (cards == null || cards.size() != expectedSize) {
-            throw new IllegalArgumentException("Expected " + expectedSize
-                + " cards.");
+            throw new IllegalArgumentException(
+                "Expected " + expectedSize + " cards.");
         }
 
         for (int i = 0; i < cards.size(); i++) {
             if (cards.get(i) == null) {
-                throw new IllegalArgumentException("Cards cannot be null.");
+                throw new IllegalArgumentException(
+                    "Cards cannot be null.");
             }
 
             for (int j = 0; j < i; j++) {
@@ -30,16 +30,13 @@ public class HandEvaluator {
         }
     }
 
-
     public static HandValue evaluate(List<Card> hand) {
         validateCards(hand, 5);
 
         int[] counts = new int[15];
-
         List<Integer> descending = new ArrayList<Integer>();
 
         Card.Suit firstSuit = hand.get(0).getSuit();
-
         boolean flush = true;
 
         for (Card card : hand) {
@@ -54,13 +51,18 @@ public class HandEvaluator {
         Collections.sort(descending, Collections.reverseOrder());
 
         int straightHigh = getStraightHigh(counts);
-
         List<Integer> groups = getRankGroups(counts);
 
         int firstCount = counts[groups.get(0)];
 
         if (flush && straightHigh > 0) {
-            return new HandValue(8, Collections.singletonList(straightHigh));
+            if (straightHigh == 14) {
+                return new HandValue(
+                    9, Collections.singletonList(14));
+            }
+
+            return new HandValue(
+                8, Collections.singletonList(straightHigh));
         }
 
         if (firstCount == 4) {
@@ -76,15 +78,17 @@ public class HandEvaluator {
         }
 
         if (straightHigh > 0) {
-            return new HandValue(4, Collections.singletonList(straightHigh));
+            return new HandValue(
+                4, Collections.singletonList(straightHigh));
         }
 
         if (firstCount == 3) {
             return new HandValue(3, groups);
         }
 
-        if (groups.size() == 3 && firstCount == 2 && counts[groups.get(
-            1)] == 2) {
+        if (groups.size() == 3
+            && firstCount == 2
+            && counts[groups.get(1)] == 2) {
 
             return new HandValue(2, groups);
         }
@@ -95,7 +99,6 @@ public class HandEvaluator {
 
         return new HandValue(0, descending);
     }
-
 
     private static int getStraightHigh(int[] counts) {
         int consecutive = 0;
@@ -113,7 +116,11 @@ public class HandEvaluator {
             }
         }
 
-        if (counts[14] > 0 && counts[5] > 0 && counts[4] > 0 && counts[3] > 0
+        // Ace can also be used as a low card in A-2-3-4-5.
+        if (counts[14] > 0
+            && counts[5] > 0
+            && counts[4] > 0
+            && counts[3] > 0
             && counts[2] > 0) {
 
             return 5;
@@ -122,13 +129,10 @@ public class HandEvaluator {
         return 0;
     }
 
-
     private static List<Integer> getRankGroups(int[] counts) {
-
         List<Integer> groups = new ArrayList<Integer>();
 
         for (int groupSize = 4; groupSize >= 1; groupSize--) {
-
             for (int rank = 14; rank >= 2; rank--) {
                 if (counts[rank] == groupSize) {
                     groups.add(rank);
@@ -139,9 +143,7 @@ public class HandEvaluator {
         return groups;
     }
 
-
     public static HandValue evaluateBest(List<Card> cards) {
-
         validateCards(cards, 7);
 
         HandValue best = null;
@@ -161,7 +163,8 @@ public class HandEvaluator {
 
                             HandValue value = evaluate(five);
 
-                            if (best == null || value.compareTo(best) > 0) {
+                            if (best == null
+                                || value.compareTo(best) > 0) {
 
                                 best = value;
                             }
@@ -174,15 +177,16 @@ public class HandEvaluator {
         return best;
     }
 
-    public static class HandValue implements Comparable<HandValue> {
+    public static class HandValue
+        implements Comparable<HandValue> {
+
         private final int category;
         private final List<Integer> tieBreak;
 
         public HandValue(int category, List<Integer> tieBreak) {
-
-            if (category < 0 || category > 8) {
+            if (category < 0 || category > 9) {
                 throw new IllegalArgumentException(
-                    "Category must be between 0 and 8.");
+                    "Category must be between 0 and 9.");
             }
 
             if (tieBreak == null || tieBreak.isEmpty()) {
@@ -198,73 +202,69 @@ public class HandEvaluator {
             }
 
             this.category = category;
-
             this.tieBreak = new ArrayList<Integer>(tieBreak);
         }
-
 
         public int getCategory() {
             return category;
         }
 
-
         public List<Integer> getTieBreak() {
             return new ArrayList<Integer>(tieBreak);
         }
 
-
         public String getLabel() {
             switch (category) {
+                case 9:
+                    return "royal flush";
                 case 8:
                     return "straight flush";
-
                 case 7:
                     return "four of a kind";
-
                 case 6:
                     return "full house";
-
                 case 5:
                     return "flush";
-
                 case 4:
                     return "straight";
-
                 case 3:
                     return "three of a kind";
-
                 case 2:
                     return "two pair";
-
                 case 1:
                     return "one pair";
-
                 default:
                     return "high card";
             }
         }
 
-
         @Override
         public int compareTo(HandValue other) {
+            if (other == null) {
+                throw new IllegalArgumentException(
+                    "Other hand cannot be null.");
+            }
+
             int result = Integer.compare(category, other.category);
 
             if (result != 0) {
                 return result;
             }
 
-            int limit = Math.min(tieBreak.size(), other.tieBreak.size());
+            int limit = Math.min(
+                tieBreak.size(), other.tieBreak.size());
 
             for (int i = 0; i < limit; i++) {
-                result = Integer.compare(tieBreak.get(i), other.tieBreak.get(
-                    i));
+                result = Integer.compare(
+                    tieBreak.get(i), other.tieBreak.get(i));
 
                 if (result != 0) {
                     return result;
                 }
             }
 
-            return Integer.compare(tieBreak.size(), other.tieBreak.size());
+            return Integer.compare(
+                tieBreak.size(), other.tieBreak.size());
         }
     }
 }
