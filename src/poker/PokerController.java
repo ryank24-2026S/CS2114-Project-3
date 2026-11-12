@@ -1,13 +1,11 @@
 package poker;
 
-import java.util.Locale;
-
 public class PokerController {
     private PokerModel model;
 
     public PokerController(PokerModel model) {
         if (model == null) {
-            throw new IllegalArgumentException("The model can't be null.");
+            throw new IllegalArgumentException("Model cannot be null.");
         }
 
         this.model = model;
@@ -19,14 +17,15 @@ public class PokerController {
             return new Reply("Goodbye.", true);
         }
 
-        String commandLine = input.trim();
+        String line = input.trim();
 
-        if (commandLine.isEmpty()) {
+        if (line.isEmpty()) {
             return new Reply("Enter a command. Try help.", false);
         }
 
-        String[] parts = commandLine.split("\\s+", 2);
-        String command = parts[0].toLowerCase(Locale.ROOT);
+        String[] parts = line.split("\\s+", 2);
+
+        String command = parts[0].toLowerCase();
         String argument = "";
 
         if (parts.length == 2) {
@@ -34,50 +33,90 @@ public class PokerController {
         }
 
         try {
-            if (!"join".equals(command) && !argument.isEmpty()) {
-                throw new IllegalArgumentException(
-                    "Unexpected argument.  Try again.");
+            boolean allowsArgument = command.equals("join") || command.equals(
+                "bet") || command.equals("raise");
+
+            if (!allowsArgument && !argument.isEmpty()) {
+
+                throw new IllegalArgumentException("Unexpected argument.");
             }
 
-            switch (command) {
-                case "join":
-                    model.addPlayer(argument);
-                    break;
-                case "start":
-                    model.startRound();
-                    break;
-                case "check":
-                    model.check(requireCurrentPlayer());
-                    break;
-                case "fold":
-                    model.fold(requireCurrentPlayer());
-                    break;
-                case "status":
-                    break;
-                case "help":
-                    return new Reply(getHelp(), false);
-                case "quit":
-                    return new Reply("Goodbye.", true);
-                default:
-                    return new Reply("Unknown command. Try help.", false);
+            if (command.equalsIgnoreCase("join")) {
+                model.addPlayer(argument);
+            }
+            else if (command.equalsIgnoreCase("start")) {
+                if (model.getState() != PokerModel.State.LOBBY) {
+
+                    throw new IllegalStateException(
+                        "Use next for another hand.");
+                }
+
+                model.startRound();
+            }
+            else if (command.equalsIgnoreCase("next")) {
+                model.startNextHand();
+            }
+            else if (command.equalsIgnoreCase("check")) {
+                model.check();
+            }
+            else if (command.equalsIgnoreCase("call")) {
+                model.call();
+            }
+            else if (command.equalsIgnoreCase("fold")) {
+                model.fold();
+            }
+            else if (command.equalsIgnoreCase("bet")) {
+                model.bet(readAmount(argument));
+            }
+            else if (command.equalsIgnoreCase("raise")) {
+                model.raiseTo(readAmount(argument));
+            }
+            else if (command.equalsIgnoreCase("allin")) {
+                model.allIn();
+            }
+            else if (command.equalsIgnoreCase("hand")) {
+                Player player = model.getCurrentPlayer();
+
+                if (player == null) {
+                    throw new IllegalStateException("No turn is active.");
+                }
+
+                return new Reply(player.getName() + ": " + player.getCards(),
+                    false);
+            }
+            else if (command.equalsIgnoreCase("help")) {
+                return new Reply(getHelp(), false);
+            }
+            else if (command.equalsIgnoreCase("quit")) {
+                return new Reply("Goodbye.", true);
+            }
+            else if (!command.equalsIgnoreCase("status")) {
+                return new Reply("Unknown command. Try help.", false);
             }
 
             return new Reply(getStatus(), false);
         }
-        catch (IllegalArgumentException | IllegalStateException e) {
-            return new Reply("Error: " + e.getMessage(), false);
+        catch (IllegalArgumentException | IllegalStateException error) {
+
+            return new Reply("Error: " + error.getMessage(), false);
         }
     }
 
 
-    private String requireCurrentPlayer() {
-        String player = model.getCurrentPlayer();
+    private int readAmount(String text) {
+        try {
+            int amount = Integer.parseInt(text);
 
-        if (player == null) {
-            throw new IllegalStateException("No turn is active.");
+            if (amount <= 0) {
+                throw new NumberFormatException();
+            }
+
+            return amount;
         }
-
-        return player;
+        catch (NumberFormatException error) {
+            throw new IllegalArgumentException(
+                "Enter a positive whole-chip amount.");
+        }
     }
 
 
@@ -85,34 +124,80 @@ public class PokerController {
         StringBuilder text = new StringBuilder();
 
         text.append("State: ").append(model.getState());
-        text.append("\nPlayer: ").append(model.getPlayers());
+
+        text.append("\nHand: ").append(model.getHandNumber());
+
+        text.append("\nDealer: ").append(model.getDealerName());
+
+        text.append("\nStage: ").append(model.getStage());
+
+        text.append("\nBoard: ").append(model.getCommunityCards());
+
+        text.append("\nPot: ").append(model.getPot());
+
+        for (Player player : model.getPlayers()) {
+            text.append("\n").append(player.getName()).append(": ").append(
+                player.getChips()).append(" chips");
+
+            if (model.getState() == PokerModel.State.PLAYING) {
+
+                text.append(", round bet: ").append(player.getRoundBet());
+
+                if (player.isFolded()) {
+                    text.append(" [folded]");
+                }
+                else if (player.isActive() && player.getChips() == 0) {
+
+                    text.append(" [all-in]");
+                }
+                else if (!player.isInHand()) {
+                    text.append(" [not dealt in]");
+                }
+            }
+        }
 
         if (model.getState() == PokerModel.State.PLAYING) {
-            String player = requireCurrentPlayer();
 
-            text.append("\nNext: ").append(player);
-            text.append("\nHand: ").append(model.getHand(player));
-            text.append("\nQueue: ").append(model.getPendingTurns());
-            text.append("\nStage: ").append(model.getStage());
-            text.append("\nBoard: ").append(model.getCommunityCards());
-            text.append("\nNext: ").append(player);
-            text.append("\nHole cards: ").append(model.getHand(player));
-            text.append("\nQueue: ").append(model.getPendingTurns());
+            Player player = model.getCurrentPlayer();
+
+            text.append("\nNext: ").append(player.getName());
+
+            text.append("\nCurrent bet: ").append(model.getCurrentBet());
+
+            text.append("\nAmount to call: ").append(model.getAmountToCall());
+
+            text.append("\nMinimum full bet/raise total: ").append(model
+                .getMinimumRaiseTo());
+
+            text.append("\nUse hand to see this player's cards.");
         }
-        else if (model.getState() == PokerModel.State.FINISHED) {
-            text.append("\nBoard: ").append(model.getCommunityCards());
 
-            for (String player : model.getActivePlayers()) {
-                text.append("\n").append(player).append(": ");
-                text.append(model.getHand(player));
+        if (model.getState() == PokerModel.State.HAND_FINISHED || model
+            .getState() == PokerModel.State.GAME_OVER) {
 
-                if (model.getCommunityCards().size() == 5) {
-                    HandEvaluator.HandValue value = model.getHandValue(player);
-                    text.append(" (").append(value.getLabel()).append(")");
+            if (model.getCommunityCards().size() == 5) {
+                for (Player player : model.getPlayers()) {
+                    if (player.isActive()) {
+                        text.append("\n").append(player.getName()).append(": ")
+                            .append(player.getCards());
+
+                        text.append(" (").append(model.getHandValue(player)
+                            .getLabel()).append(")");
+                    }
                 }
             }
 
-            text.append("\nWinner(s): ").append(model.getWinners());
+            for (String result : model.getResults()) {
+                text.append("\n").append(result);
+            }
+
+            if (model.getState() == PokerModel.State.HAND_FINISHED) {
+
+                text.append("\nUse next to start another hand.");
+            }
+            else {
+                text.append("\nGame over.");
+            }
         }
 
         return text.toString();
@@ -120,15 +205,15 @@ public class PokerController {
 
 
     public static String getHelp() {
-        return "Command: join NAME | start | check | fold "
-            + "| status | help | quit\n" + "Hold'em style: 2-6 players,  "
-            + "two whole cards each, shared flop/turn/river,"
-            + "check/fold only.";
+        return "Commands:\n" + "join NAME | start | next | status | hand\n"
+            + "check | call | fold | bet AMOUNT\n"
+            + "raise TOTAL | allin | help | quit\n"
+            + "Starting chips: 100. Blinds: 1/2.\n"
+            + "Raise TOTAL means your total bet " + "for this street.";
     }
 
-    // ---------------------------------
     public static class Reply {
-        private final String text;
+        private String text;
         private boolean quit;
 
         public Reply(String text, boolean quit) {

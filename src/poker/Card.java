@@ -2,19 +2,18 @@ package poker;
 
 public class Card {
     public enum Suit {
-        CLUBS, DIAMONDS, HEARTS, SPADES
+        CLUBS,
+        DIAMONDS,
+        HEARTS,
+        SPADES
     }
 
     private final int rank;
     private final Suit suit;
 
     public Card(int rank, Suit suit) {
-        if (rank < 2 || rank > 14) {
-            throw new IllegalArgumentException(
-                "Rank must be between 2 and 14.");
-        }
-        if (suit == null) {
-            throw new IllegalArgumentException("Suit cannot be null.");
+        if (rank < 2 || rank > 14 || suit == null) {
+            throw new IllegalArgumentException("Invalid card.");
         }
 
         this.rank = rank;
@@ -56,7 +55,7 @@ public class Card {
         return label + "-" + suit;
     }
 
-
+    @Override
     public boolean equals(Object other) {
         if (this == other) {
             return true;
@@ -69,8 +68,8 @@ public class Card {
         return rank == card.rank && suit == card.suit;
     }
 
-
+    @Override
     public int hashCode() {
-        return 31 * rank + suit.hashCode();
+        return 4 * rank + suit.ordinal();
     }
 }

@@ -1,43 +1,45 @@
 package poker;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Queue;
 import java.util.Random;
 
 public class Deck {
-    private Queue<Card> cards;
+    private List<Card> cards;
+    private int nextCard;
 
     public Deck(Random random) {
         if (random == null) {
-            throw new IllegalArgumentException("Random source cannot be null.");
+            throw new IllegalArgumentException("Random cannot be null.");
         }
 
-        List<Card> shuffled = new ArrayList<>();
+        cards = new ArrayList<Card>();
+        nextCard = 0;
 
         for (Card.Suit suit : Card.Suit.values()) {
             for (int rank = 2; rank <= 14; rank++) {
-                shuffled.add(new Card(rank, suit));
+                cards.add(new Card(rank, suit));
             }
         }
 
-        Collections.shuffle(shuffled, random);
-        cards = new ArrayDeque<>(shuffled);
+        Collections.shuffle(cards, random);
     }
 
 
     public Card deal() {
-        if (cards.isEmpty()) {
-            throw new IllegalArgumentException("The deck is empty.");
+        if (nextCard >= cards.size()) {
+            throw new IllegalStateException("The deck is empty.");
         }
 
-        return cards.remove();
+        Card card = cards.get(nextCard);
+        nextCard++;
+
+        return card;
     }
 
 
     public int getRemaining() {
-        return cards.size();
+        return cards.size() - nextCard;
     }
 }

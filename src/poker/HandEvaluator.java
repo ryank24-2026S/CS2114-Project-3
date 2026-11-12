@@ -2,22 +2,44 @@ package poker;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class HandEvaluator {
     private HandEvaluator() {
     }
 
 
-    public static HandValue evaluate(List<Card> hand) {
-        validateHand(hand);
+    private static void validateCards(List<Card> cards, int expectedSize) {
 
-        int counts[] = new int[15];
-        List<Integer> descending = new ArrayList<>();
+        if (cards == null || cards.size() != expectedSize) {
+            throw new IllegalArgumentException("Expected " + expectedSize
+                + " cards.");
+        }
+
+        for (int i = 0; i < cards.size(); i++) {
+            if (cards.get(i) == null) {
+                throw new IllegalArgumentException("Cards cannot be null.");
+            }
+
+            for (int j = 0; j < i; j++) {
+                if (cards.get(i).equals(cards.get(j))) {
+                    throw new IllegalArgumentException(
+                        "Cards must be distinct.");
+                }
+            }
+        }
+    }
+
+
+    public static HandValue evaluate(List<Card> hand) {
+        validateCards(hand, 5);
+
+        int[] counts = new int[15];
+
+        List<Integer> descending = new ArrayList<Integer>();
 
         Card.Suit firstSuit = hand.get(0).getSuit();
+
         boolean flush = true;
 
         for (Card card : hand) {
@@ -40,47 +62,38 @@ public class HandEvaluator {
         if (flush && straightHigh > 0) {
             return new HandValue(8, Collections.singletonList(straightHigh));
         }
+
         if (firstCount == 4) {
             return new HandValue(7, groups);
         }
+
         if (groups.size() == 2 && firstCount == 3) {
             return new HandValue(6, groups);
         }
+
         if (flush) {
             return new HandValue(5, descending);
         }
+
         if (straightHigh > 0) {
             return new HandValue(4, Collections.singletonList(straightHigh));
         }
+
         if (firstCount == 3) {
             return new HandValue(3, groups);
         }
+
         if (groups.size() == 3 && firstCount == 2 && counts[groups.get(
             1)] == 2) {
+
             return new HandValue(2, groups);
         }
+
         if (firstCount == 2) {
             return new HandValue(1, groups);
         }
 
         return new HandValue(0, descending);
-    }
-
-
-    private static void validateHand(List<Card> hand) {
-        if (hand == null || hand.size() != 5) {
-            throw new IllegalArgumentException(
-                "A hand must contain exactly five cards.");
-        }
-
-        Set<Card> checked = new HashSet<>();
-
-        for (Card card : hand) {
-            if (card == null || !checked.add(card)) {
-                throw new IllegalArgumentException(
-                    "A hand must contain five distinct, non-null cards.");
-            }
-        }
     }
 
 
@@ -102,6 +115,7 @@ public class HandEvaluator {
 
         if (counts[14] > 0 && counts[5] > 0 && counts[4] > 0 && counts[3] > 0
             && counts[2] > 0) {
+
             return 5;
         }
 
@@ -110,9 +124,11 @@ public class HandEvaluator {
 
 
     private static List<Integer> getRankGroups(int[] counts) {
-        List<Integer> groups = new ArrayList<>();
+
+        List<Integer> groups = new ArrayList<Integer>();
 
         for (int groupSize = 4; groupSize >= 1; groupSize--) {
+
             for (int rank = 14; rank >= 2; rank--) {
                 if (counts[rank] == groupSize) {
                     groups.add(rank);
@@ -123,19 +139,52 @@ public class HandEvaluator {
         return groups;
     }
 
-    // ---------------------------------------------------------------------
-    /**
-     * Stores a hand's category and ordered tiebreaking ranks.
-     */
+
+    public static HandValue evaluateBest(List<Card> cards) {
+
+        validateCards(cards, 7);
+
+        HandValue best = null;
+
+        for (int a = 0; a < 3; a++) {
+            for (int b = a + 1; b < 4; b++) {
+                for (int c = b + 1; c < 5; c++) {
+                    for (int d = c + 1; d < 6; d++) {
+                        for (int e = d + 1; e < 7; e++) {
+                            List<Card> five = new ArrayList<Card>();
+
+                            five.add(cards.get(a));
+                            five.add(cards.get(b));
+                            five.add(cards.get(c));
+                            five.add(cards.get(d));
+                            five.add(cards.get(e));
+
+                            HandValue value = evaluate(five);
+
+                            if (best == null || value.compareTo(best) > 0) {
+
+                                best = value;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return best;
+    }
+
     public static class HandValue implements Comparable<HandValue> {
         private final int category;
         private final List<Integer> tieBreak;
 
         public HandValue(int category, List<Integer> tieBreak) {
+
             if (category < 0 || category > 8) {
                 throw new IllegalArgumentException(
-                    "Hand category must be between 0 and 8.");
+                    "Category must be between 0 and 8.");
             }
+
             if (tieBreak == null || tieBreak.isEmpty()) {
                 throw new IllegalArgumentException(
                     "Tiebreaking ranks are required.");
@@ -149,8 +198,8 @@ public class HandEvaluator {
             }
 
             this.category = category;
-            this.tieBreak = Collections.unmodifiableList(new ArrayList<>(
-                tieBreak));
+
+            this.tieBreak = new ArrayList<Integer>(tieBreak);
         }
 
 
@@ -160,7 +209,7 @@ public class HandEvaluator {
 
 
         public List<Integer> getTieBreak() {
-            return tieBreak;
+            return new ArrayList<Integer>(tieBreak);
         }
 
 
@@ -168,20 +217,28 @@ public class HandEvaluator {
             switch (category) {
                 case 8:
                     return "straight flush";
+
                 case 7:
                     return "four of a kind";
+
                 case 6:
                     return "full house";
+
                 case 5:
                     return "flush";
+
                 case 4:
                     return "straight";
+
                 case 3:
                     return "three of a kind";
+
                 case 2:
                     return "two pair";
+
                 case 1:
                     return "one pair";
+
                 default:
                     return "high card";
             }
@@ -209,49 +266,5 @@ public class HandEvaluator {
 
             return Integer.compare(tieBreak.size(), other.tieBreak.size());
         }
-    }
-
-    public static HandValue evaluateBest(List<Card> cards) {
-        if (cards == null || cards.size() != 7) {
-            throw new IllegalArgumentException(
-                "Exactly seven cards are required.");
-        }
-
-        Set<Card> checked = new HashSet<>();
-
-        for (Card card : cards) {
-            if (card == null || !checked.add(card)) {
-                throw new IllegalArgumentException(
-                    "Cards must be distinct and non-null.");
-            }
-        }
-
-        HandValue best = null;
-
-        for (int a = 0; a < 3; a++) {
-            for (int b = a + 1; b < 4; b++) {
-                for (int c = b + 1; c < 5; c++) {
-                    for (int d = c + 1; d < 6; d++) {
-                        for (int e = d + 1; e < 7; e++) {
-                            List<Card> candidate = new ArrayList<>();
-
-                            candidate.add(cards.get(a));
-                            candidate.add(cards.get(b));
-                            candidate.add(cards.get(c));
-                            candidate.add(cards.get(d));
-                            candidate.add(cards.get(e));
-
-                            HandValue value = evaluate(candidate);
-
-                            if (best == null || value.compareTo(best) > 0) {
-                                best = value;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return best;
     }
 }

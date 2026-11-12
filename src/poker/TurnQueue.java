@@ -1,8 +1,8 @@
 package poker;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -10,35 +10,36 @@ public class TurnQueue {
     private Queue<String> players;
 
     public TurnQueue() {
-        players = new ArrayDeque<>();
+        players = new LinkedList<String>();
     }
 
 
-    public void enqueue(String player) {
-        if (player == null || player.trim().isEmpty()) {
-            throw new IllegalArgumentException("Player name can't be blank.");
+    public void enqueue(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Player name cannot be blank.");
         }
-        if (players.contains(player)) {
+
+        if (players.contains(name)) {
             throw new IllegalArgumentException(
                 "That player is already in the queue.");
         }
 
-        players.add(player);
+        players.add(name);
     }
 
 
     public String peek() {
         if (players.isEmpty()) {
-            throw new IllegalStateException("There are no players waiting.");
+            throw new IllegalStateException("The turn queue is empty.");
         }
 
-        return players.element();
+        return players.peek();
     }
 
 
     public String dequeue() {
         if (players.isEmpty()) {
-            throw new IllegalStateException("There are no players waiting.");
+            throw new IllegalStateException("The turn queue is empty.");
         }
 
         return players.remove();
@@ -55,7 +56,14 @@ public class TurnQueue {
     }
 
 
+    public void clear() {
+        players.clear();
+    }
+
+
     public List<String> getPlayers() {
-        return Collections.unmodifiableList(new ArrayList<>(players));
+        List<String> copy = new ArrayList<String>(players);
+
+        return Collections.unmodifiableList(copy);
     }
 }
