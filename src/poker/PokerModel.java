@@ -752,19 +752,18 @@ public class PokerModel {
 
 
     public HandEvaluator.HandValue getHandValue(Player player) {
-
         if (player == null) {
             throw new IllegalArgumentException("Player cannot be null.");
         }
 
-        if (communityCards.size() != 5 || player.getCards().size() != 2) {
+        if (communityCards.size() != 5
+            || player.getCards().size() != 2) {
 
             throw new IllegalStateException(
-                "Two hole cards and five community cards " + "are required.");
+                "Two hole cards and five community cards are required.");
         }
 
-        List<Card> cards = player.getCards();
-
+        List<Card> cards = new ArrayList<Card>(player.getCards());
         cards.addAll(communityCards);
 
         return HandEvaluator.evaluateBest(cards);

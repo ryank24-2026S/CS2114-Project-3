@@ -4,18 +4,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.NoSuchElementException;
 
 public class Deck {
-    private List<Card> cards;
-    private int nextCard;
+
+    private final Random random;
+    private final List<Card> cards;
+    private int currentIndex;
 
     public Deck(Random random) {
         if (random == null) {
-            throw new IllegalArgumentException("Random cannot be null.");
+            throw new IllegalArgumentException(
+                "Random source cannot be null.");
         }
 
-        cards = new ArrayList<Card>();
-        nextCard = 0;
+        this.random = random;
+        this.cards = new ArrayList<>();
+
+        resetAndShuffle();
+    }
+
+    public void resetAndShuffle() {
+        cards.clear();
 
         for (Card.Suit suit : Card.Suit.values()) {
             for (int rank = 2; rank <= 14; rank++) {
@@ -24,22 +34,24 @@ public class Deck {
         }
 
         Collections.shuffle(cards, random);
+
+        currentIndex = 0;
     }
 
-
     public Card deal() {
-        if (nextCard >= cards.size()) {
-            throw new IllegalStateException("The deck is empty.");
+        if (currentIndex >= cards.size()) {
+            throw new NoSuchElementException(
+                "The deck is empty.");
         }
 
-        Card card = cards.get(nextCard);
-        nextCard++;
+        Card card = cards.get(currentIndex);
+
+        currentIndex++;
 
         return card;
     }
 
-
-    public int getRemaining() {
-        return cards.size() - nextCard;
+    public int remaining() {
+        return cards.size() - currentIndex;
     }
 }
