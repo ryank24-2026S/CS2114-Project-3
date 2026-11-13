@@ -227,11 +227,11 @@ The following table should be completed using each team member's actual contribu
 | Class or Test File | Team Member(s) | Contribution |
 | --- | --- | --- |
 | `PokerModel.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
-| `Player.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
+| `Player.java` | Aaron | Written |
 | `Card.java` | Elias | Written |
 | `Deck.java` | Elias | Written |
-| `BettingRound.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
-| `TurnQueue.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
+| `BettingRound.java` | Aaron | Written |
+| `TurnQueue.java` | Aaron | Written |
 | `HandEvaluator.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
 | `PokerController.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
 | `ConsoleView.java` | [Verify] | [Written / Revised / Reviewed / Tested] |

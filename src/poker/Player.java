@@ -25,7 +25,6 @@ public class Player {
         this(username, username, chipBalance);
     }
 
-    // Retained for compatibility with your original Player class.
     public Player(String playerId, String username, int chipBalance) {
         if (playerId == null || playerId.trim().isEmpty()) {
             throw new IllegalArgumentException("Invalid player ID.");
