@@ -222,8 +222,8 @@ The following table should be completed using each team member's actual contribu
 | --- | --- | --- |
 | `PokerModel.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
 | `Player.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
-| `Card.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
-| `Deck.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
+| `Card.java` | Elias | Written |
+| `Deck.java` | Elias | Written |
 | `BettingRound.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
 | `TurnQueue.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
 | `HandEvaluator.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
