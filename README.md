@@ -104,6 +104,19 @@ These changes simplified the first implementation and made it easier to connect 
 
 The default starting chip count was also changed to 100.
 
+### Reasons for Implementation Changes
+
+The changes between our specification and implementation were primarily made to simplify development and make the first prototype easier to integrate.
+
+- **PokerGame to PokerModel:** We consolidated the main game logic into PokerModel to make it easier to manage game state and connect the model to the controller.
+- **PokerView to ConsoleView:** We chose a simple console interface because Deliverable 3 only requires a thin view. This allows us to focus on testing the model before developing a more advanced interface.
+- **PlayerTurnQueue to TurnQueue:** We simplified the queue implementation while preserving its main responsibility of managing player turns.
+- **PotResolver logic moved into PokerModel:** We kept pot distribution within the main model to reduce the number of separate components that needed to be integrated.
+- **Controller method changes:** We used a command-based approach through execute(String) to simplify communication between the console interface and the model.
+- **Testing changes:** We introduced ModelDriver to demonstrate that the model can run independently without requiring the view.
+
+These adjustments were made during the implementation process based on the group's development needs and the goal of producing a working first prototype.
+
 ### Did the model really stand alone?
 
 The current design keeps the model independent of the view.
@@ -153,31 +166,24 @@ We plan to:
 7. Improve the console interface and player handoff process.
 8. Run final integration tests before submission.
 
-### Non-Trivial Change Feature
+### Non-Trivial Change Feature: Player Statistics
 
-For Deliverable 4, our proposed change feature is session-level player statistics.
+For Deliverable 4, we plan to implement session-level player statistics. This feature will track the number of hands played, hands won, and total chips gained or lost by each player. Players will be able to view their statistics through a new `stats` command.
 
-This feature would track information such as:
+We predict the following changes:
 
-- Number of hands played
-- Number of hands won
-- Total chips won or lost
+| Class | Predicted Method Changes |
+|---|---|
+| Player | Add fields for hands played and hands won, along with methods such as `recordHandPlayed()`, `recordHandWon()`, and `getStatistics()`. |
+| PokerModel | Update the hand-completion and payout logic to record statistics. Add `getPlayerStats(String playerId)` to retrieve player statistics. |
+| PokerController | Update `execute(String command)` to recognize the `stats` command and request statistics from the model. |
+| ConsoleView | Update the command instructions and display the statistics returned by the controller. |
 
-Players would be able to view their statistics using a new `stats` command.
+We predict that `TurnQueue`, `Deck`, `Card`, and `HandEvaluator` will not require changes because player statistics do not affect turn order, card dealing, or poker hand evaluation.
 
-This feature changes the model's stored information and requires interaction through the controller and view, making it more than a visual change.
+This feature will require additional tests to verify that statistics update correctly after completed hands, ties, folds, and all-in situations. We will also test that invalid commands do not modify statistics.
 
-We predict that the following classes will need modifications:
-
-- `Player` and/or `PokerModel`: track and update player statistics.
-- `PokerController`: process the new statistics command.
-- `ConsoleView`: display the statistics.
-
-We may also introduce a `PlayerStats` class.
-
-We do not expect `TurnQueue`, `Deck`, `Card`, or `HandEvaluator` to require changes because player statistics should not affect turn order, card dealing, or hand evaluation.
-
-We will compare these predictions with the actual implementation in Deliverable 4.
+After implementation, we will compare these predictions with the actual changes made to evaluate how well our MVC design supports new functionality.
 
 ### Stretch Goals
 
