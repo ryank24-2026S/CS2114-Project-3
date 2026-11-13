@@ -226,16 +226,16 @@ The following table should be completed using each team member's actual contribu
 
 | Class or Test File | Team Member(s) | Contribution |
 | --- | --- | --- |
-| `PokerModel.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
+| `PokerModel.java` | Ryan | Written |
 | `Player.java` | Aaron | Written |
 | `Card.java` | Elias | Written |
 | `Deck.java` | Elias | Written |
-| `BettingRound.java` | Aaron | Written |
+| `BettingRound.java` | Mayank | Written |
 | `TurnQueue.java` | Aaron | Written |
-| `HandEvaluator.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
-| `PokerController.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
-| `ConsoleView.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
-| `ModelDriver.java` | [Verify] | [Written / Revised / Reviewed / Tested] |
+| `HandEvaluator.java` | Mayank | Written |
+| `PokerController.java` | Mayank | Written |
+| `ConsoleView.java` | Ryan | Written |
+| `ModelDriver.java` | Ryan | Written |
 
 No dedicated JUnit test files are currently present in the repository.
 
