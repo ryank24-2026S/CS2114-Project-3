@@ -235,10 +235,4 @@ No dedicated JUnit test files are currently present in the repository.
 
 ### GenAI Usage
 
-GenAI (ChatGPT) was used to review the repository and assignment requirements and assist with drafting and organizing the README, including the reflection and next-steps sections.
-
-The team should verify the documentation and disclose any additional GenAI assistance used in developing or testing the source code.
-
----
-
-**Verification Note:** This README is based on an inspection of the current repository source code. The application has not been independently compiled or executed as part of this review, so runtime behavior and test results still need to be verified.
+GenAI (ChatGPT) was used to assist with organizing the README, including the reflection and next-steps sections.
