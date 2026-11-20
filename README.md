@@ -6,15 +6,14 @@ This repository contains our completed model-and-console implementation for Deli
 
 ## Running the Project
 
-The source files are located in `src/poker/` and use the `poker` package. Java is required.
-
 From the repository root, compile the application classes using:
 
 ```bash
-javac -d out src/poker/*.java
+mkdir -p out
+javac -d out $(find src/poker -maxdepth 1 -name "*.java" ! -name "*Test.java")
 ```
 
-The JUnit test classes require JUnit 4 on the classpath. In Eclipse, import the project, configure JUnit 4 if necessary, and run the test classes as JUnit tests.
+The JUnit test classes require JUnit 4. To run the tests, import the project into Eclipse, add JUnit 4 to the build path if necessary, and run the test classes as JUnit tests.
 
 ### Run the Model Independently
 
@@ -133,12 +132,10 @@ The test files are:
 - `PlayerTest.java`
 - `PokerModelTest.java`
 - `TurnQueueTest.java`
+- 
+The existing JUnit tests cover normal operations and invalid inputs, including player creation, chip management, card validation, deck operations, hand evaluation, turn queue behavior, betting-round state, and model initialization.
 
-These tests cover normal operations and invalid inputs, including player creation, chip management, card validation, deck operations, hand evaluation, turn queue behavior, betting-round state, and model initialization.
-
-The tests execute successfully, and the application runs correctly through both the independent model driver and console interface.
-
-The statistics feature is also accessible through the completed application.
+All existing JUnit tests pass, and the application executes successfully through both the independent model driver and console interface. The player statistics feature was also verified through the console by completing hands and using the `stats` and `stats NAME` commands to display player statistics.
 
 ## Reflection
 
