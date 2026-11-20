@@ -155,6 +155,8 @@ We originally expected to add a method such as `getPlayerStats(String playerId)`
 
 We also predicted that classes such as `TurnQueue`, `Deck`, `Card`, and `HandEvaluator` would not need statistics-specific changes. The feature did not require changes to their core responsibilities.
 
+One design improvement that would make future features easier to implement would be separating player statistics into their own class. This would allow us to add more detailed statistics without continuing to expand the responsibilities of `Player` and `PokerModel`. It would also make statistics easier to test independently.
+
 Overall, the change was absorbed well because each class already had a defined responsibility. The statistics feature required changes across multiple components, but we did not need to redesign the entire program.
 
 ### Did the Change Cross the Model/View Line?
@@ -252,14 +254,19 @@ This will demonstrate that the new feature works through the view and controller
 
 ### Division of Work
 
-| Team Member | Remaining Responsibilities |
-|---|---|
-| Mayank | Review model behavior, expand tests, and verify game-state transitions |
-| Ryan | Review turn order, hand evaluation, payout edge cases, and model testing |
-| Aaron | Review console usability, player handoff, and gameplay scenarios |
-| Elias | Finalize README documentation, review statistics command integration, and help prepare the demonstration |
+The remaining tasks for the final build are assigned as follows:
 
-All team members will review the final implementation and participate in verifying that the project meets the deliverable requirements.
+| Remaining Task | Owner | Responsibility |
+|---|---|---|
+| Expand tests for complete hands, ties, and side pots | Mayank | Add additional model tests and verify game-state transitions |
+| Review turn order and payout edge cases | Ryan | Check turn queue behavior, hand evaluation, and pot distribution |
+| Improve console interface and player handoff | Aaron | Refine the user interface and test gameplay scenarios |
+| Expand statistics command integration testing | Elias | Verify `stats` and `stats NAME` through the controller and view |
+| Refine error handling and invalid-input behavior | Mayank | Test unusual inputs and improve error handling where necessary |
+| Review MVC separation and dependencies | Ryan | Identify unnecessary coupling between the model, controller, and view |
+| Finalize README and demonstration preparation | Elias | Complete documentation and coordinate the three-minute demo |
+
+All team members will participate in final integration testing and review the completed project before submission.
 
 ## Work Attribution
 
