@@ -211,7 +211,7 @@ We will also add regression tests for the queue, betting system, and pot distrib
 
 | Team Member | Planned Responsibilities |
 | --- | --- |
-| Mayank | Model fixes, game-state transitions, and betting integration tests |
+| Mayank | Model fixes, game-state transitions, and all tests |
 | Ryan | Turn queue, hand evaluation, payout edge cases, and model testing |
 | Aaron | Console view improvements, player handoff, and gameplay testing |
 | Elias | Controller updates, statistics command, README coordination, and integration testing |
@@ -227,12 +227,20 @@ The following table should be completed using each team member's actual contribu
 | Class or Test File | Team Member(s) | Contribution |
 | --- | --- | --- |
 | `PokerModel.java` | Ryan | Written |
+| `PokerModelTest.java` | Mayank | Written |
 | `Player.java` | Aaron | Written |
+| `PlayerTest.java` | Mayank | Written |
 | `Card.java` | Elias | Written |
+| `CardRenderer.java` | Ryan | Written |
+| `CardTest.java` | Mayank | Written |
+| `ConsoleView.java` | Ryan | Written |
 | `Deck.java` | Elias | Written |
+| `DeckTest.java` | Mayank | Written |
 | `BettingRound.java` | Mayank | Written |
+| `BettingRoundTest.java` | Mayank | Written |
 | `TurnQueue.java` | Aaron | Written |
 | `HandEvaluator.java` | Mayank | Written |
+| `HandEvaluatorTest.java` | Mayank | Written |
 | `PokerController.java` | Mayank | Written |
 | `ConsoleView.java` | Ryan | Written |
 | `ModelDriver.java` | Ryan | Written |
