@@ -50,11 +50,9 @@ public class PokerModel {
         players = new ArrayList<Player>();
         communityCards = new ArrayList<Card>();
         results = new ArrayList<String>();
-
         turns = new TurnQueue();
 
         state = State.LOBBY;
-
         dealer = -1;
         previousBigBlind = -1;
     }
@@ -85,7 +83,6 @@ public class PokerModel {
 
         for (Player player : players) {
             if (player.getName().equalsIgnoreCase(cleanName)) {
-
                 throw new IllegalArgumentException(
                     "That name is already being used.");
             }
@@ -100,14 +97,12 @@ public class PokerModel {
             throw new IllegalArgumentException(
                 "Starting chips must be between 1 and 10000.");
         }
-
         players.add(new Player(cleanName, chips));
     }
 
 
     public void startRound() {
         if (state != State.LOBBY && state != State.HAND_FINISHED) {
-
             throw new IllegalStateException("Cannot start a hand now.");
         }
 
@@ -118,9 +113,7 @@ public class PokerModel {
         }
 
         if (fundedPlayers == 2 && previousBigBlind >= 0) {
-
             int nextBigBlind = nextFundedPlayer(previousBigBlind);
-
             dealer = nextFundedPlayer(nextBigBlind);
         }
         else {
@@ -147,7 +140,6 @@ public class PokerModel {
         }
 
         int bigBlindPlayer = nextFundedPlayer(smallBlindPlayer);
-
         previousBigBlind = bigBlindPlayer;
 
         dealHoleCards();
@@ -165,7 +157,6 @@ public class PokerModel {
         for (Player player : players) {
             player.setNeedsTurn(player.canAct());
         }
-
         advanceGame(bigBlindPlayer);
     }
 
@@ -174,7 +165,6 @@ public class PokerModel {
         if (state != State.HAND_FINISHED) {
             throw new IllegalStateException("Finish the current hand first.");
         }
-
         startRound();
     }
 
@@ -187,7 +177,6 @@ public class PokerModel {
                 count++;
             }
         }
-
         return count;
     }
 
@@ -206,7 +195,6 @@ public class PokerModel {
                 return index;
             }
         }
-
         throw new IllegalStateException("No player has chips.");
     }
 
@@ -217,7 +205,6 @@ public class PokerModel {
                 return i;
             }
         }
-
         throw new IllegalArgumentException("Unknown player.");
     }
 
@@ -225,14 +212,11 @@ public class PokerModel {
     private void dealHoleCards() {
         for (int card = 0; card < 2; card++) {
             int index = dealer;
-
             for (int i = 0; i < players.size(); i++) {
                 index++;
-
                 if (index >= players.size()) {
                     index = 0;
                 }
-
                 Player player = players.get(index);
 
                 if (player.isInHand()) {
@@ -254,10 +238,8 @@ public class PokerModel {
 
     private Player requireTurn() {
         if (state != State.PLAYING || turns.isEmpty()) {
-
             throw new IllegalStateException("No turn is active.");
         }
-
         return getCurrentPlayer();
     }
 
@@ -268,7 +250,6 @@ public class PokerModel {
         if (amount < 0) {
             amount = 0;
         }
-
         return amount;
     }
 
@@ -277,9 +258,7 @@ public class PokerModel {
         int index = findPlayerIndex(player.getName());
 
         player.finishTurn(currentBet);
-
         turns.dequeue();
-
         advanceGame(index);
     }
 
@@ -291,14 +270,12 @@ public class PokerModel {
             throw new IllegalArgumentException(
                 "You must call, raise, or fold.");
         }
-
         completeAction(player);
     }
 
 
     public void call() {
         Player player = requireTurn();
-
         int amount = amountOwed(player);
 
         if (amount == 0) {
@@ -310,7 +287,6 @@ public class PokerModel {
         }
 
         player.pay(amount);
-
         completeAction(player);
     }
 
@@ -319,7 +295,6 @@ public class PokerModel {
         Player player = requireTurn();
 
         player.fold();
-
         completeAction(player);
     }
 
@@ -331,7 +306,6 @@ public class PokerModel {
             throw new IllegalArgumentException(
                 "A bet already exists. Use raise.");
         }
-
         increaseBet(amount);
     }
 
@@ -342,19 +316,16 @@ public class PokerModel {
         if (currentBet == 0) {
             throw new IllegalArgumentException("No bet exists. Use bet.");
         }
-
         increaseBet(total);
     }
 
 
     public void allIn() {
         Player player = requireTurn();
-
         int total = player.getRoundBet() + player.getChips();
 
         if (total <= currentBet) {
             player.pay(player.getChips());
-
             completeAction(player);
         }
         else {
@@ -384,14 +355,12 @@ public class PokerModel {
                 return true;
             }
         }
-
         return false;
     }
 
 
     private void increaseBet(int total) {
         Player player = requireTurn();
-
         int maximum = player.getRoundBet() + player.getChips();
 
         if (total <= currentBet || total > maximum) {
@@ -411,9 +380,7 @@ public class PokerModel {
         }
 
         int increase = total - currentBet;
-
         boolean fullRaise = increase >= minimumRaise;
-
         boolean allIn = total == maximum;
 
         if (!fullRaise && !allIn) {
@@ -424,7 +391,6 @@ public class PokerModel {
         int payment = total - player.getRoundBet();
 
         player.pay(payment);
-
         currentBet = total;
 
         if (fullRaise) {
@@ -438,14 +404,12 @@ public class PokerModel {
                 other.setNeedsTurn(true);
             }
         }
-
         completeAction(player);
     }
 
 
     private void buildTurnQueue(int after) {
         turns.clear();
-
         int index = after;
 
         for (int i = 0; i < players.size(); i++) {
@@ -458,7 +422,6 @@ public class PokerModel {
             Player player = players.get(index);
 
             if (player.canAct() && player.needsTurn()) {
-
                 turns.enqueue(player.getName());
             }
         }
@@ -516,7 +479,6 @@ public class PokerModel {
                 count++;
             }
         }
-
         return count;
     }
 
@@ -529,29 +491,25 @@ public class PokerModel {
                 count++;
             }
         }
-
         return count;
     }
 
 
     private void dealNextStreet() {
-        deck.deal(); // Burn one card.
+        deck.deal();
 
         if (stage == Stage.PREFLOP) {
             communityCards.add(deck.deal());
             communityCards.add(deck.deal());
             communityCards.add(deck.deal());
-
             stage = Stage.FLOP;
         }
         else if (stage == Stage.FLOP) {
             communityCards.add(deck.deal());
-
             stage = Stage.TURN;
         }
         else if (stage == Stage.TURN) {
             communityCards.add(deck.deal());
-
             stage = Stage.RIVER;
         }
     }
@@ -559,7 +517,6 @@ public class PokerModel {
 
     private void returnUncalledChips() {
         Player highestPlayer = null;
-
         int highest = 0;
         int secondHighest = 0;
 
@@ -577,7 +534,6 @@ public class PokerModel {
         }
 
         if (highestPlayer != null && highest > secondHighest) {
-
             int refund = highest - secondHighest;
 
             highestPlayer.refund(refund);
@@ -590,18 +546,17 @@ public class PokerModel {
 
     private void awardLastPlayer() {
         returnUncalledChips();
-
         int pot = getPot();
 
         for (Player player : players) {
             if (player.isActive()) {
                 player.receiveChips(pot);
+                player.recordHandWon();
 
                 results.add(player.getName() + " wins " + pot
                     + " without showdown.");
             }
         }
-
         finishHand();
     }
 
@@ -618,7 +573,6 @@ public class PokerModel {
                 }
             }
         }
-
         return nextLevel;
     }
 
@@ -630,7 +584,6 @@ public class PokerModel {
 
         while (level != 0) {
             int contributors = 0;
-
             List<Player> eligible = new ArrayList<Player>();
 
             for (Player player : players) {
@@ -644,28 +597,23 @@ public class PokerModel {
             }
 
             int amount = (level - previousLevel) * contributors;
-
             List<Player> winners = findBestPlayers(eligible);
 
             if (winners.isEmpty()) {
                 throw new IllegalStateException(
                     "A pot has no eligible winner.");
             }
-
             awardPot(amount, winners, potNumber);
 
             previousLevel = level;
             level = nextPotLevel(previousLevel);
-
             potNumber++;
         }
     }
 
 
     private List<Player> findBestPlayers(List<Player> eligible) {
-
         List<Player> winners = new ArrayList<Player>();
-
         HandEvaluator.HandValue best = null;
 
         for (Player player : eligible) {
@@ -680,7 +628,6 @@ public class PokerModel {
 
                 if (comparison > 0) {
                     best = value;
-
                     winners.clear();
                     winners.add(player);
                 }
@@ -689,18 +636,15 @@ public class PokerModel {
                 }
             }
         }
-
         return winners;
     }
 
 
     private void awardPot(int amount, List<Player> winners, int potNumber) {
-
         int share = amount / winners.size();
         int extra = amount % winners.size();
 
         String names = "";
-
         int index = dealer;
 
         for (int i = 0; i < players.size(); i++) {
@@ -721,21 +665,23 @@ public class PokerModel {
                 }
 
                 player.receiveChips(payment);
+                player.recordHandWon();
 
                 if (!names.isEmpty()) {
                     names += ", ";
                 }
-
                 names += player.getName();
             }
         }
-
         results.add("Pot " + potNumber + ": " + amount + " chips -> " + names);
     }
 
 
     private void finishHand() {
         for (Player player : players) {
+            if (player.isInHand()) {
+                player.recordHandPlayed();
+            }
             player.finishHand();
         }
 
@@ -756,17 +702,47 @@ public class PokerModel {
             throw new IllegalArgumentException("Player cannot be null.");
         }
 
-        if (communityCards.size() != 5
-            || player.getCards().size() != 2) {
-
+        if (communityCards.size() != 5 || player.getCards().size() != 2) {
             throw new IllegalStateException(
                 "Two hole cards and five community cards are required.");
         }
-
         List<Card> cards = new ArrayList<Card>(player.getCards());
         cards.addAll(communityCards);
 
         return HandEvaluator.evaluateBest(cards);
+    }
+
+
+    public String getPlayerStats(String playerId) {
+        if (playerId == null || playerId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Player ID cannot be blank.");
+        }
+
+        String cleanId = playerId.trim();
+
+        for (Player player : players) {
+            if (player.getPlayerId().equalsIgnoreCase(cleanId)) {
+                return player.getStatistics();
+            }
+        }
+        throw new IllegalArgumentException("Unknown player.");
+    }
+
+
+    public String getAllPlayerStats() {
+        if (players.isEmpty()) {
+            return "No players have joined yet.";
+        }
+
+        StringBuilder text = new StringBuilder();
+
+        for (Player player : players) {
+            if (text.length() > 0) {
+                text.append("\n\n");
+            }
+            text.append(getPlayerStats(player.getPlayerId()));
+        }
+        return text.toString();
     }
 
 
@@ -797,19 +773,16 @@ public class PokerModel {
 
     public int getAmountToCall() {
         Player player = requireTurn();
-
         return amountOwed(player);
     }
 
 
     public Player getCurrentPlayer() {
         if (state != State.PLAYING || turns.isEmpty()) {
-
             return null;
         }
 
         String name = turns.peek();
-
         int index = findPlayerIndex(name);
 
         return players.get(index);
@@ -820,7 +793,6 @@ public class PokerModel {
         if (dealer == -1) {
             return "None";
         }
-
         return players.get(dealer).getName();
     }
 
@@ -831,7 +803,6 @@ public class PokerModel {
         for (Player player : players) {
             total += player.getTotalBet();
         }
-
         return total;
     }
 

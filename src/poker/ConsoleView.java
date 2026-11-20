@@ -19,6 +19,7 @@ public class ConsoleView {
         PokerModel model,
         PokerController controller,
         Scanner sc) {
+
         if (model == null || controller == null || sc == null) {
             throw new IllegalArgumentException(
                 "Model, controller, and input are required.");
@@ -33,9 +34,9 @@ public class ConsoleView {
     public static void main(String[] args) {
         PokerModel model = new PokerModel(new Random());
         PokerController controller = new PokerController(model);
-        Scanner sc = new Scanner(System.in);
+        Scanner input = new Scanner(System.in);
 
-        ConsoleView view = new ConsoleView(model, controller, sc);
+        ConsoleView view = new ConsoleView(model, controller, input);
         view.run();
     }
 
@@ -147,14 +148,16 @@ public class ConsoleView {
                 + " chips | Current bet: " + model.getCurrentBet());
         }
         else {
-            System.out.println(
-                "Hand complete. Payouts are included in the chip stacks.");
+            System.out.println("Hand complete. Payouts are included "
+                + "in the chip stacks.");
         }
 
         System.out.println(DIVIDER);
         System.out.println("COMMUNITY CARDS");
         System.out.println();
+
         System.out.println(CardRenderer.render(model.getCommunityCards(), 5));
+
         System.out.println();
         System.out.println("Suits: C = Clubs, D = Diamonds, "
             + "H = Hearts, S = Spades");
@@ -175,8 +178,10 @@ public class ConsoleView {
         Player current = model.getCurrentPlayer();
 
         System.out.println(DIVIDER);
+
         System.out.printf("   %-20s %7s %11s  %s%n", "Player", "Chips",
             "Street bet", "Status");
+
         System.out.println(DIVIDER);
 
         for (Player player : model.getPlayers()) {
@@ -225,12 +230,16 @@ public class ConsoleView {
 
         System.out.println();
         System.out.println("TURN: " + player.getName());
+
         System.out.println("Amount to call: " + model.getAmountToCall()
             + " chips");
+
         System.out.println("Minimum full bet/raise total: " + model
             .getMinimumRaiseTo() + " chips");
+
         System.out.println("A smaller increase is allowed only when the model "
             + "permits an all-in.");
+
         System.out.println(
             "Use View cards only when the current player is ready.");
     }
@@ -251,6 +260,7 @@ public class ConsoleView {
             for (Player player : model.getPlayers()) {
                 if (player.isActive()) {
                     System.out.println();
+
                     System.out.println(player.getName() + " - " + model
                         .getHandValue(player).getLabel());
 
@@ -286,28 +296,27 @@ public class ConsoleView {
 
         System.out.println("[8] Help");
         System.out.println("[9] Refresh table");
+        System.out.println("[10] Player statistics");
         System.out.println("[0] Quit");
+
         System.out.println("You may also type an existing game command.");
+        System.out.println("Type stats NAME to view one player's statistics.");
     }
 
 
-    /**
-     * Converts menu choices into existing controller commands.
-     * Non-menu input is passed through unchanged.
-     */
     private String resolveCommand(String selection) {
         if ("0".equals(selection)) {
             return "quit";
         }
-
         if ("8".equals(selection)) {
             return "help";
         }
-
         if ("9".equals(selection)) {
             return "status";
         }
-
+        if ("10".equals(selection)) {
+            return "stats";
+        }
         if (model.getState() == PokerModel.State.LOBBY) {
             if ("1".equals(selection)) {
                 return promptCommand("join", "Player name: ");
@@ -321,26 +330,19 @@ public class ConsoleView {
             switch (selection) {
                 case "1":
                     return "hand";
-
                 case "2":
                     return "check";
-
                 case "3":
                     return "call";
-
                 case "4":
                     return promptCommand("bet", "Bet total for this street: ");
-
                 case "5":
                     return promptCommand("raise",
                         "New total bet for this street: ");
-
                 case "6":
                     return "fold";
-
                 case "7":
                     return "allin";
-
                 default:
                     break;
             }
@@ -361,19 +363,12 @@ public class ConsoleView {
         if (argument == null) {
             return null;
         }
-
         return command + " " + argument.trim();
     }
 
 
-    /**
-     * Requests the current hand through the controller before displaying it.
-     *
-     * @return false if input has closed; otherwise true
-     */
     private boolean showCurrentHand() {
         PokerController.Reply reply = controller.execute("hand");
-
         Player player = model.getCurrentPlayer();
 
         if (player == null) {
@@ -398,7 +393,6 @@ public class ConsoleView {
         for (int i = 0; i < 35; i++) {
             System.out.println();
         }
-
         return true;
     }
 
@@ -409,7 +403,8 @@ public class ConsoleView {
         if (!sc.hasNextLine()) {
             return null;
         }
-
         return sc.nextLine();
     }
 }
+
+
