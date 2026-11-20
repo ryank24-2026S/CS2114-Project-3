@@ -222,8 +222,6 @@ These responsibilities are proposed and will be confirmed by the group.
 
 ## Work Attribution
 
-The following table should be completed using each team member's actual contributions before submission.
-
 | Class or Test File | Team Member(s) | Contribution |
 | --- | --- | --- |
 | `PokerModel.java` | Ryan | Written |
